@@ -10,7 +10,7 @@ def k_rank(G,k):
 	return wk
 
 def nystrom(G,c,k):
-	n,n = G.shape
+	n,_ = G.shape
 	S = np.zeros((n,c))
 	D = np.zeros((c,c))
 
@@ -21,6 +21,7 @@ def nystrom(G,c,k):
 		x = np.random.multinomial(1, p, size=1)
 		i_t = np.where(x==1)[1][0]
 		D[t,t] = 1/np.sqrt(c*p[i_t]) 
+		S[i_t,t] =1
 
 	print(G.shape, S.shape, D.shape)
 	C = np.matmul(G,S)
