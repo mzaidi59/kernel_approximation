@@ -8,20 +8,26 @@ from numpy import zeros
 from scipy.linalg import svd
 #
 
-def k_rank(G,k):
+
+def check_symmetric(a, tol=1e-8):
+    return np.allclose(a, a.T, atol=tol)
+
+def k_rank(W,k):
 	# wk = 0
-	# n,n = G.shape
-	# w, v = LA.eig(G)
+	# n,n = W.shape
+	# w, v = LA.eigh(W)
 	# print(w)
 	# for i in range(k):
 	# 	wk += w[i]*np.dot(np.reshape(v[:,i],(n,1)),np.reshape((v[:,i]).T,(1,n)))
 	# return wk
-	U, s, VT = svd(G)
+
+	U, s, VT = svd(W)
+	print(U-VT.T)
 	s[k:] = 0
 	# create m x n Sigma matrix
-	Sigma = zeros((G.shape[0], G.shape[1]))
+	Sigma = np.zeros_like(W)
 	# populate Sigma with n x n diagonal matrix
-	Sigma[:G.shape[1], :G.shape[1]] = diag(s)
+	Sigma[:W.shape[1], :W.shape[1]] = diag(s)
 	# reconstruct matrix
 	B = U.dot(Sigma.dot(VT))
 	
@@ -44,15 +50,19 @@ def nystrom(G,c,k):
 		S[i_t,t] =1
 
 
-	C = np.matmul(G,S)
-	C = np.matmul(C,D)
-	W_temp = np.matmul(D,S.T)
-	W_temp = np.matmul(W_temp,G)
-	W = np.matmul(W_temp,S,D)
+	C_1 = G.dot(S)
+	C = C_1.dot(D)
+
+	W_1 = D.dot(S.T)
+	W_2 = W_1.dot(G)
+	W_3 = W_2.dot(S)
+	W = W_3.dot(D)
+
 	print("----------")
 	print(C)
 	print("----------")
 	print(W)
+	print(check_symmetric(W))
 	W_k = k_rank(W,k)
 	print("----------")
 	print(W_k)
@@ -63,18 +73,19 @@ def nystrom(G,c,k):
 
 
 def main():
-	N = 100
+	N = 10
 	# a = np.random.rand(N, N)
 	# G = np.tril(a) + np.tril(a, -1).T
 
-	G = make_spd_matrix(10)
+	G = make_spd_matrix(N)+10e-5*np.identity(N)
 	c = 9
 	k = 4
 	G_k = nystrom(G,c,k)
-	print("----------")
+	# print("----------"prin
 	print(G)
-	print("----------")	
+	print("---------")
 	print(G_k)
+	print(np.linalg.norm(G-G_k))
 
 if __name__ == '__main__':
   main()
