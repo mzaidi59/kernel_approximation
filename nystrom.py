@@ -1,6 +1,4 @@
 import numpy as np
-from numpy import linalg as LA
-from sklearn.datasets import make_spd_matrix
 from numpy import array
 from numpy import diag
 from numpy import dot
@@ -13,16 +11,9 @@ def check_symmetric(a, tol=1e-8):
     return np.allclose(a, a.T, atol=tol)
 
 def k_rank(W,k):
-	# wk = 0
-	# n,n = W.shape
-	# w, v = LA.eigh(W)
-	# print(w)
-	# for i in range(k):
-	# 	wk += w[i]*np.dot(np.reshape(v[:,i],(n,1)),np.reshape((v[:,i]).T,(1,n)))
-	# return wk
 
 	U, s, VT = svd(W)
-	print(U-VT.T)
+	# print(U-VT.T)
 	s[k:] = 0
 	# create m x n Sigma matrix
 	Sigma = np.zeros_like(W)
@@ -58,34 +49,35 @@ def nystrom(G,c,k):
 	W_3 = W_2.dot(S)
 	W = W_3.dot(D)
 
-	print("----------")
-	print(C)
-	print("----------")
-	print(W)
-	print(check_symmetric(W))
+	# print("----------")
+	# print(C)
+	# print("----------")
+	# print(W)
+	# print(check_symmetric(W))
 	W_k = k_rank(W,k)
-	print("----------")
-	print(W_k)
+	# print(np.linalg.inv(C.dot(C.T)))
+	# print("----------")
+	# print(W_k)
 	W_k_pinv = np.linalg.pinv(W_k)
 	G_k = np.matmul(C,W_k_pinv)
 	G_k = np.matmul(G_k,C.T)
-	return G_k
+	return G_k,C
 
 
-def main():
-	N = 10
-	# a = np.random.rand(N, N)
-	# G = np.tril(a) + np.tril(a, -1).T
+# def main():
+# 	N = 1000
+# 	# a = np.random.rand(N, N)
+# 	# G = np.tril(a) + np.tril(a, -1).T
 
-	G = make_spd_matrix(N)+10e-5*np.identity(N)
-	c = 9
-	k = 4
-	G_k = nystrom(G,c,k)
-	# print("----------"prin
-	print(G)
-	print("---------")
-	print(G_k)
-	print(np.linalg.norm(G-G_k))
+# 	G = make_spd_matrix(N)+10e-5*np.identity(N)
+# 	c = int(0.5 * N)
+# 	k = int(0.1 * N)
+# 	G_k,C = nystrom(G,c,k)
+# 	# print("----------"prin
+# 	# print(G)
+# 	# print("---------")
+# 	# print(G_k)
+# 	print(np.linalg.norm(G-G_k)/np.linalg.norm(G))
 
-if __name__ == '__main__':
-  main()
+# if __name__ == '__main__':
+#   main()
