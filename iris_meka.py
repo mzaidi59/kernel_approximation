@@ -3,10 +3,25 @@ from sklearn import datasets
 from matplotlib import pyplot as plt
 from nystrom import *
 from meka import *
+import time
+
+n_time = 0
+m_time = 0
 
 def checker(mat, n_clus, gamma, thresh, n_points, rank):
-	kernel, mat_meka = meka(mat, n_clus, gamma)
+	global m_time
+	global n_time
+
+	start = time.time()
+	kernel, mat_meka = meka(mat, n_clus, gamma, thresh)
+	end = time.time()
+	m_time += end - start
+
+	start = time.time()
 	mat_nystroem, _ = nystrom(kernel, n_points, rank)
+	end = time.time()
+	n_time += end - start
+
 	metric1 = np.linalg.norm(kernel - mat_nystroem, ord = 'fro')/np.linalg.norm(kernel, ord = 'fro')
 	metric2 = np.linalg.norm(kernel - mat_meka, ord = 'fro')/np.linalg.norm(kernel, ord = 'fro')
 	return metric1, metric2
@@ -19,12 +34,12 @@ def main():
 	# gamma = np.arange(1, 201)/2
 	c = 100
 	# datapoints = np.arange(51, 151)
-	# rank = 47
-	ranks = np.arange(1, 100)
+	rank = 47
+	# ranks = np.arange(1, 100)
 	cluster = 5
 	# clusters = range(1,101)
-	thresh = 9
-	# threshs = np.arange(10, 100)/10
+	# thresh = 9
+	threshs = np.arange(10, 100)/10
 	met1 = []
 	met2 = []
 	minima = float('inf')
@@ -55,18 +70,21 @@ def main():
 	# plt.legend()
 	# plt.show()
 
-	for rank in ranks:
-		temp1, temp2 = checker(mat, cluster, gamma, thresh, c, rank)
-		met1.append(temp1)
-		met2.append(temp2)
+	# for rank in ranks:
+	# 	temp1, temp2 = checker(mat, cluster, gamma, thresh, c, rank)
+	# 	met1.append(temp1)
+	# 	met2.append(temp2)
 
-	plt.scatter(ranks, met2, c = 'red', label = 'MEKA metric')
-	plt.scatter(ranks, met1, c = 'black', label = 'Nystroem metric')
-	plt.xlabel('Rank used for approximation')
-	plt.ylabel('Error Metric')
-	plt.title('MEKA vs Nystroem\n(datapoints = 100, cluster = 5, gamma = 6, threshhold = 9)')
-	plt.legend()
-	plt.show()
+	# print('Time taken for Nystroem = ', n_time, 'secs')
+	# print('Time taken for Meka = ', m_time, 'secs')
+
+	# plt.scatter(ranks, met2, c = 'red', label = 'MEKA metric')
+	# plt.scatter(ranks, met1, c = 'black', label = 'Nystroem metric')
+	# plt.xlabel('Rank used for approximation')
+	# plt.ylabel('Error Metric')
+	# plt.title('MEKA vs Nystroem\n(datapoints = 100, cluster = 5, gamma = 6, threshhold = 9)')
+	# plt.legend()
+	# plt.show()
 
 
 	# for c in datapoints:
@@ -87,18 +105,18 @@ def main():
 	# plt.legend()
 	# plt.show()
 
-	# for thresh in threshs:
-	# 	temp1, temp2 = checker(mat, cluster, gamma, thresh, c, rank)
-	# 	met1.append(temp1)
-	# 	met2.append(temp2)
-	# print("Plotting")
-	# plt.scatter(threshs, met2, c = 'red', label = 'MEKA metric')
-	# plt.scatter(threshs, met1, c = 'black', label = 'Nystroem metric')
-	# plt.xlabel('Value of threshhold (MEKA)')
-	# plt.ylabel('Error Metric')
-	# plt.title('Nystroem vs MEKA \n (gamma = 6, clusters = 5, rank = 41, datapoints = 50)')
-	# plt.legend()
-	# plt.show()
+	for thresh in threshs:
+		temp1, temp2 = checker(mat, cluster, gamma, thresh, c, rank)
+		met1.append(temp1)
+		met2.append(temp2)
+	print("Plotting")
+	plt.scatter(threshs, met2, c = 'red', label = 'MEKA metric')
+	plt.scatter(threshs, met1, c = 'black', label = 'Nystroem metric')
+	plt.xlabel('Value of threshhold (MEKA)')
+	plt.ylabel('Error Metric')
+	plt.title('Nystroem vs MEKA \n (gamma = 6, clusters = 5, rank = 41, datapoints = 50)')
+	plt.legend()
+	plt.show()
 
 
 

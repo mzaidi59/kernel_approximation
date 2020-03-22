@@ -8,11 +8,10 @@ from nystrom import *
 
 
 
-def meka(X, n_c, g):
+def meka(X, n_c, g, thresh):
 	G_k = np.zeros((X.shape[0],X.shape[0]))
 	k = int(0.3 * X.shape[0] /n_c)
 	kmeans = KMeans(n_clusters=n_c, random_state=0).fit(X)
-	thresh = 1.2
 	#Cluster identity of each row
 	n_clus = kmeans.predict(X)
 	# print(n_clus)
@@ -35,13 +34,13 @@ def meka(X, n_c, g):
 		s_in[i] = np.sum(n_p[:i])
 		e_in[i] = s_in[i] + n_p[i]
 		G_temp = rbf_kernel(X_p[int(s_in[i]):int(e_in[i]),:], gamma = g)
-		G_k[s_in[i]:e_in[i], s_in[i]:e_in[i]], W_t = nystrom(G_temp, int(np.ceil(n_p[i]*0.4)) ,int(np.ceil(n_p[i]*0.9)))
+		G_k[s_in[i]:e_in[i], s_in[i]:e_in[i]], W_t = nystrom(G_temp, int(np.ceil(n_p[i]*0.8)) ,int(np.ceil(n_p[i]*0.7)))
 		W.append(W_t)
 	
 	G = rbf_kernel(X_p, gamma = g)
 	for i in range(n_c):
 		for j in range(n_c):
-			print(np.linalg.norm(X_cen[i]-X_cen[j]))
+			# print(np.linalg.norm(X_cen[i]-X_cen[j]))
 			if not (i==j) and np.linalg.norm(X_cen[i]-X_cen[j]) < thresh and not (i==j):
 
 				W_a = W[i]
@@ -63,7 +62,7 @@ def meka(X, n_c, g):
 				G_k[s_in[i]:e_in[i], s_in[j]:e_in[j]] = M_f
 				G_k[s_in[j]:e_in[j], s_in[i]:e_in[i]] = M_f.T
 				#--------------------------------------------
-	print(G.shape, G_k.shape)
+	# print(G.shape, G_k.shape)
 	return G, G_k
 
 # def main():
